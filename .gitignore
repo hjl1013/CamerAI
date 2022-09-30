@@ -1,0 +1,6 @@
+# mac
+.DS_Store
+*/.DS_Store
+
+# pretrained models
+Yolov7/pretrained_models
