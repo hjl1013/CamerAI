@@ -4,3 +4,15 @@
 
 # pretrained models
 # yolov7/pretrained_models
+
+# pycache
+**/__pycache__
+
+# cache
+yolov7/data/*.cache
+
+# runs
+yolov7/runs
+
+# .idea
+.idea
