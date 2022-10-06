@@ -79,6 +79,7 @@ def train(hyp, opt, device, tb_writer=None):
     names = ['item'] if opt.single_cls and len(data_dict['names']) != 1 else data_dict['names']  # class names
     assert len(names) == nc, '%g names found for nc=%g dataset in %s' % (len(names), nc, opt.data)  # check
 
+
     # Model
     pretrained = weights.endswith('.pt')
     if pretrained:
@@ -331,7 +332,7 @@ def train(hyp, opt, device, tb_writer=None):
         pbar = enumerate(dataloader)
         logger.info(('\n' + '%10s' * 8) % ('Epoch', 'gpu_mem', 'box', 'obj', 'cls', 'total', 'labels', 'img_size'))
         if rank in [-1, 0]:
-            pbar = tqdm(pbar, total=nb)  # progress bar
+            pbar = tqdm(pbar, total=nb, bar_format="{l_bar}{bar:15}{r_bar}")  # progress bar
         optimizer.zero_grad()
         for i, (imgs, targets, paths, _) in pbar:  # batch -------------------------------------------------------------
             ni = i + nb * epoch  # number integrated batches (since train start)
@@ -590,6 +591,9 @@ if __name__ == '__main__':
         opt.name = 'evolve' if opt.evolve else opt.name
         opt.save_dir = increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok | opt.evolve)  # increment run
 
+
+
+
     # DDP mode
     opt.total_batch_size = opt.batch_size
     device = select_device(opt.device, batch_size=opt.batch_size)
@@ -600,6 +604,7 @@ if __name__ == '__main__':
         dist.init_process_group(backend='nccl', init_method='env://')  # distributed backend
         assert opt.batch_size % opt.world_size == 0, '--batch-size must be multiple of CUDA device count'
         opt.batch_size = opt.total_batch_size // opt.world_size
+
 
     # Hyperparameters
     with open(opt.hyp) as f:
