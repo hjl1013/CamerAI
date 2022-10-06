@@ -1,6 +1,5 @@
 # mac
-.DS_Store
-*/.DS_Store
+**/.DS_Store
 
 # pretrained models
 # yolov7/pretrained_models
@@ -16,3 +15,6 @@ yolov7/runs
 
 # .idea
 .idea
+
+# check.py
+check.py
