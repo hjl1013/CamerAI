@@ -2,7 +2,7 @@
 **/.DS_Store
 
 # pretrained models
-# yolov7/pretrained_models
+yolov7/pretrained_models
 
 # pycache
 **/__pycache__
@@ -18,3 +18,9 @@ yolov7/runs
 
 # check.py
 check.py
+
+# inae_note kkk
+yolov7/inae_note
+
+# pretrained models
+yolov7/pretrained_models
