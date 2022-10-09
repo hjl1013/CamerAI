@@ -1,12 +1,10 @@
 from collections import OrderedDict
-import torch
 from torch import nn
 
 from maskrcnn_benchmark.modeling import registry
 from . import bert_model
 from . import rnn_model
 from . import clip_model
-from . import word_utils
 
 
 @registry.LANGUAGE_BACKBONES.register("bert-base-uncased")
