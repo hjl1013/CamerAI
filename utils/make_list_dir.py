@@ -1,36 +1,55 @@
 import glob, os
 from os import getcwd
 import random
-
-path = os.getcwd() 
-
+# import sys
+# sys.path.append()
 
 # Create and/or truncate train.txt and test.txt
-file_train = open('val.txt', 'a')
+file_train = open('/home/aistore17/CamerAI_hjl/yolov7/data/train_with_NewDataset.txt', 'w')
+file_val = open('/home/aistore17/CamerAI_hjl/yolov7/data/val_with_NewDataset.txt', 'w')
+file_test = open('/home/aistore17/CamerAI_hjl/yolov7/data/test_with_NewDataset.txt', 'w')
+
+ratio = [0.8, 0.1, 0.1]
 
 list = []
-def make_list_cur(root, class_dir):
-    cur_dir = root + '/' + class_dir + '/'
+
+
+def make_list_cur(class_dir):
+    cur_dir = class_dir + '/'
     for pathAndFilename in glob.glob(os.path.join(cur_dir, "*.jpg")):
         title, ext = os.path.splitext(os.path.basename(pathAndFilename))
         s = cur_dir + title + '.jpg' + "\n"
         list.append(s)
 
+
 def main():
+    data_dir_paths = [
+        '/home/aistore17/Datasets/1.competition_dataset/1_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/2_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/3_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/4_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/5_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/6_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/7_dataset',
+        '/home/aistore17/Datasets/NewDataset'
+    ]
 
-    dir_list = os.listdir(path)
-    for root, dirnames, filenames in os.walk(path):
-        break  
-    for class_dir in dirnames:
-        if class_dir == "7_dataset":
-            make_list_cur(root, class_dir)
+    for data_dir_path in data_dir_paths:
+        make_list_cur(data_dir_path)
 
+    total_data_num = len(list)
+    cnt = 0
     while list:
         name = random.choice(list)
         print(name)
-        file_train.write(name)
+        if cnt < total_data_num * ratio[0]:
+            file_train.write(name)
+        elif cnt < total_data_num * (ratio[0] + ratio[1]):
+            file_val.write(name)
+        else:
+            file_test.write(name)
         list.remove(name)
-
+        cnt += 1
 
 
 if __name__ == '__main__':
