@@ -24,3 +24,6 @@ yolov7/inae_note
 
 # pretrained models
 yolov7/pretrained_models
+
+# background images
+backgrounds
