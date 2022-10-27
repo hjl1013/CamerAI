@@ -5,9 +5,9 @@ import random
 # sys.path.append()
 
 # Create and/or truncate train.txt and test.txt
-file_train = open('/home/aistore17/CamerAI_hjl/yolov7/data/train_with_NewDataset.txt', 'a')
-file_val = open('/home/aistore17/CamerAI_hjl/yolov7/data/val_with_NewDataset.txt', 'a')
-file_test = open('/home/aistore17/CamerAI_hjl/yolov7/data/test_with_NewDataset.txt', 'a')
+file_train = open('/home/aistore17/Datasets/cocoformat_Dataset/train.txt', 'a')
+file_val = open('/home/aistore17/Datasets/cocoformat_Dataset/val.txt', 'a')
+file_test = open('/home/aistore17/Datasets/cocoformat_Dataset/test.txt', 'a')
 
 ratio = [0.9, 0.1, 0]
 
@@ -24,15 +24,15 @@ def make_list_cur(class_dir):
 
 def main():
     data_dir_paths = [
-        # '/home/aistore17/Datasets/1.competition_dataset/1_dataset',
-        # '/home/aistore17/Datasets/1.competition_dataset/2_dataset',
-        # '/home/aistore17/Datasets/1.competition_dataset/3_dataset',
-        # '/home/aistore17/Datasets/1.competition_dataset/4_dataset',
-        # '/home/aistore17/Datasets/1.competition_dataset/5_dataset',
-        # '/home/aistore17/Datasets/1.competition_dataset/6_dataset',
-        # '/home/aistore17/Datasets/1.competition_dataset/7_dataset',
-        # '/home/aistore17/Datasets/NewDataset',
-        '/home/aistore17/Datasets/RandomBackgroundDataset'
+        '/home/aistore17/Datasets/1.competition_dataset/1_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/2_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/3_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/4_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/5_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/6_dataset',
+        '/home/aistore17/Datasets/1.competition_dataset/7_dataset',
+        '/home/aistore17/Datasets/NewDataset',
+        # '/home/aistore17/Datasets/RandomBackgroundDataset'
     ]
 
     for data_dir_path in data_dir_paths:
