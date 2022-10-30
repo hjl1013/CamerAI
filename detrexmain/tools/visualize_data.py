@@ -5,6 +5,8 @@ import os
 from itertools import chain
 import cv2
 import tqdm
+import sys
+sys.path.append('/home/aistore17/CamerAI_hjl/detrexmain')
 
 from detectron2.config import LazyConfig, instantiate
 from detectron2.data import DatasetCatalog, MetadataCatalog

@@ -8,6 +8,8 @@ import os
 from collections import defaultdict
 import cv2
 import tqdm
+import sys
+sys.path.append('/home/aistore17/CamerAI_hjl/detrexmain')
 
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import Boxes, BoxMode, Instances
@@ -64,7 +66,7 @@ if __name__ == "__main__":
         def dataset_id_map(ds_id):
             return metadata.thing_dataset_id_to_contiguous_id[ds_id]
 
-    elif "lvis" in args.dataset:
+    elif "lvis" in args.dataset or "camerai" in args.dataset:
         # LVIS results are in the same format as COCO results, but have a different
         # mapping from dataset category id to contiguous category id in [0, #categories - 1]
         def dataset_id_map(ds_id):

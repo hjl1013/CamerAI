@@ -269,7 +269,7 @@ def get_camerai_dicts(img_dir, json_file):
         while anno_idx < total_anno:
             annotation = annotations[anno_idx]
             if annotation["image_id"] == dict["id"]:
-                obj = annotation
+                obj = annotation.copy()
                 obj["category_id"] -= 1
                 obj["bbox_mode"] = BoxMode.XYWH_ABS
                 objs.append(obj)

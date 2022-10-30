@@ -1,17 +1,18 @@
 from detrex.config import get_config
-from .models.dab_detr_r50_camerai import model
+from .models.dino_r50 import model
 
+# get default config
 dataloader = get_config("common/data/camerai.py").dataloader
 optimizer = get_config("common/optim.py").AdamW
-lr_multiplier = get_config("common/coco_schedule.py").lr_multiplier_50ep
+lr_multiplier = get_config("common/coco_schedule.py").lr_multiplier_12ep
 train = get_config("common/train.py").train
 
-# initialize checkpoint to be loaded
+# modify training config
 train.init_checkpoint = "detectron2://ImageNetPretrained/torchvision/R-50.pkl"
-train.output_dir = "./output/dab_detr_r50_50ep"
+train.output_dir = "./output/dino_r50_4scale_12ep"
 
 # max training iterations
-train.max_iter = 375000
+train.max_iter = 90000
 
 # run evaluation every 5000 iters
 train.eval_period = 5000
@@ -28,11 +29,11 @@ train.clip_grad.params.max_norm = 0.1
 train.clip_grad.params.norm_type = 2
 
 # set training devices
-train.device = "cuda:3"
+train.device = "cuda"
 model.device = train.device
 
 # modify optimizer config
-optimizer.lr = 1e-3
+optimizer.lr = 1e-4
 optimizer.betas = (0.9, 0.999)
 optimizer.weight_decay = 1e-4
 optimizer.params.lr_factor_func = lambda module_name: 0.1 if "backbone" in module_name else 1
