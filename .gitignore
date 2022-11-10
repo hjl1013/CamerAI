@@ -28,3 +28,6 @@ yolov7/pretrained_models
 
 # background images
 backgrounds
+
+# video results
+results
