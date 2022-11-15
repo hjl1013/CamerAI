@@ -1,13 +1,12 @@
-import sys
-sys.path.append('/home/aistore17/CamerAI_hjl')
-sys.path.append('/home/aistore17/CamerAI_hjl/yolov7')
-
 import argparse
 import torch
 import time
 import numpy as np
 import cv2
+import sys
 from pathlib import Path
+sys.path.append(str(Path(__file__).absolute().parent.parent))
+sys.path.append(str(Path(__file__).absolute().parent.parent / 'yolov7'))
 
 from models.experimental import attempt_load
 from utils.general import check_imshow, check_img_size, non_max_suppression
@@ -42,8 +41,8 @@ lineType = 2
 
 
 def main(args):
-    source, weights, device_name, imgsz = args.source, args.weights, args.device, args.img_size
-    save_path = '/home/aistore17/CamerAI_hjl/yolov7/results/result2.mp4'
+    source, weights, device_name, imgsz = args.source, args.weights, f'cuda:{args.gpu_id}', args.img_size
+    save_path, num_frames_to_avg = args.save_path, args.num_frames_to_avg
 
     # only implementing with device GPU
     assert device_name.split(':')[0] == 'cuda', f'{device_name} not implemented'
@@ -65,34 +64,58 @@ def main(args):
 
         # run detection
         vid_writer = None
-        for datas in zip(datasets[0], datasets[1], datasets[2], datasets[3], datasets[4]):
-            start = time.time()
+        start = time.time()
+        inputs = None
+        results = np.zeros(60)
+        for cnt, datas in enumerate(zip(datasets[0], datasets[1], datasets[2], datasets[3], datasets[4])):
+            print()
 
-            # list results saves the number of each product
-            # TODO: stack images
-            results = np.zeros(60)
-            for data in datas:
-                result_tmp = np.zeros(60)
+            # get predictions from 5 cameras averages results of {num_frames_to_avg} frames
+            # TODO this takes too long every time np.array, np.concatenet is called, it has to copy. shorten this time
+            tmp = time.time()
+            images = np.array([data[1] for data in datas])
+            if inputs is None:
+                inputs = images
+            else:
+                inputs = np.concatenate((inputs, images), axis=0) # concating images of {num_frames_to_avg} frames
+            print(f'image preparing time: {time.time() - tmp}')
 
-                # get prediction from model(yolov7)
+            if cnt % num_frames_to_avg == num_frames_to_avg - 1:
+                tmp = time.time()
                 with torch.no_grad():
-                    path, img, im0s = data[:-1]
-                    img = torch.from_numpy(img).to(device)
-                    img = img.half()  # uint8 to fp16/32
-                    img /= 255.0  # 0 - 255 to 0.0 - 1.0
-                    if img.ndimension() == 3:
-                        img = img.unsqueeze(0)
+                    inputs = torch.from_numpy(inputs)
+                    inputs = inputs.to(device)
+                    inputs = inputs.half()
+                    inputs /= 255.0
 
-                    pred = model(img)[0]
-                    pred = non_max_suppression(pred, args.conf_thres, args.iou_thres)
+                    preds = model(inputs)[0] # tuple of predictions in all 5 cameras
+                    preds = non_max_suppression(preds, args.conf_thres, args.iou_thres)
+                print(f'model prediction time: {time.time() - tmp}')
 
-                # calculating union of products
-                for det in pred[0]:
-                    det = det.to('cpu')
-                    result_tmp[int(det[-1])] += 1
-                results = np.maximum(results, result_tmp)
+                # calculating final result
+                results = np.zeros(60)
+                tmp = time.time()
+                for i in range(num_frames_to_avg):
+                    result = np.zeros(60)
 
+                    # calculating union of 5 cameras in one frame
+                    for pred in preds[5 * i: 5 * (i+1)]:
+                        result_tmp = np.zeros(60)
+                        pred = pred.to('cpu')
+                        for det in pred:
+                            result_tmp[int(det[-1])] += 1
+                        result = np.maximum(result, result_tmp)
+
+                    # averageing result
+                    results += result / num_frames_to_avg
+                results = results.round().astype(np.int32)
+
+                print(f'results calculating time: {time.time() - tmp}')
+                inputs = None
+                break
+            '''
             # saving result as a video
+            tmp = time.time()
             _, _, img, vid_cap = datas[0]
             if not isinstance(vid_writer, cv2.VideoWriter):
                 fps = vid_cap.get(cv2.CAP_PROP_FPS)
@@ -110,20 +133,23 @@ def main(args):
                             thickness,
                             lineType)
             vid_writer.write(img)
-
+            print(f'video saving time: {time.time() - tmp}')
             print(time.time()-start)
-        vid_writer.release()
+            '''
+        # vid_writer.release()
 
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, default='/home/aistore17/results/yolov7_200ep_best.pt', help='yolo model to use')
-    parser.add_argument('--device', type=str, default='cuda:0', help='device to run')
+    parser.add_argument('--gpu-id', type=str, default='0', help='device to run')
     parser.add_argument('--conf-thres', type=float, default=0.25)
     parser.add_argument('--iou-thres', type=float, default=0.45)
     parser.add_argument('--source', type=str, default='/home/aistore17/Datasets/4.TestVideosSample', help='0 for webcams, else directory path to videos')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
+    parser.add_argument('--save-path', type=str, default='../results/result.mp4', help='path to save resulting video')
+    parser.add_argument('-nf', '--num-frames-to-avg', type=int, default=5, help='number of frames to average')
     args = parser.parse_args()
 
     main(args)
