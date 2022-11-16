@@ -1,8 +1,9 @@
 # mac
-**/.DS_Store
+*.DS_Store
 
-# pretrained models
+# models
 yolov7/pretrained_models
+models
 
 # pycache
 **/__pycache__
@@ -27,3 +28,6 @@ yolov7/pretrained_models
 
 # background images
 backgrounds
+
+# video results
+results
