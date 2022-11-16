@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 import sys
 from pathlib import Path
+import torch.multiprocessing as mp
 sys.path.append(str(Path(__file__).absolute().parent.parent))
 sys.path.append(str(Path(__file__).absolute().parent.parent / 'yolov7'))
 
@@ -65,32 +66,33 @@ def main(args):
         # run detection
         vid_writer = None
         start = time.time()
-        inputs = None
+        inputs = []
         results = np.zeros(60)
         for cnt, datas in enumerate(zip(datasets[0], datasets[1], datasets[2], datasets[3], datasets[4])):
             print()
 
             # get predictions from 5 cameras averages results of {num_frames_to_avg} frames
-            # TODO this takes too long every time np.array, np.concatenet is called, it has to copy. shorten this time
             tmp = time.time()
-            images = np.array([data[1] for data in datas])
+            images = [data[1] for data in datas]
             if inputs is None:
                 inputs = images
             else:
-                inputs = np.concatenate((inputs, images), axis=0) # concating images of {num_frames_to_avg} frames
+                inputs.extend(images)
             print(f'image preparing time: {time.time() - tmp}')
 
             if cnt % num_frames_to_avg == num_frames_to_avg - 1:
+                # get prediction from model
                 tmp = time.time()
                 with torch.no_grad():
-                    inputs = torch.from_numpy(inputs)
+                    inputs = torch.from_numpy(np.array(inputs))
                     inputs = inputs.to(device)
                     inputs = inputs.half()
                     inputs /= 255.0
 
                     preds = model(inputs)[0] # tuple of predictions in all 5 cameras
+                    print(f'model prediction time: {time.time() - tmp}')
                     preds = non_max_suppression(preds, args.conf_thres, args.iou_thres)
-                print(f'model prediction time: {time.time() - tmp}')
+                print(f'model total prediction time: {time.time() - tmp}')
 
                 # calculating final result
                 results = np.zeros(60)
@@ -112,8 +114,7 @@ def main(args):
 
                 print(f'results calculating time: {time.time() - tmp}')
                 inputs = None
-                break
-            '''
+
             # saving result as a video
             tmp = time.time()
             _, _, img, vid_cap = datas[0]
@@ -135,8 +136,7 @@ def main(args):
             vid_writer.write(img)
             print(f'video saving time: {time.time() - tmp}')
             print(time.time()-start)
-            '''
-        # vid_writer.release()
+        vid_writer.release()
 
 
 
