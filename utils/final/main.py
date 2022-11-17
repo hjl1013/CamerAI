@@ -75,7 +75,6 @@ def main(args):
         inputs = None
         start = time.time()
         last_results = np.zeros(60) # save previous result
-        results_stable = np.zeros(60) # stabilized result. we use this as the final result
         last_results_stable = np.zeros(60) # save previous stabilized result
         stable_count = np.zeros(60) # counting how long the result is stable
         change_log = []
@@ -132,7 +131,7 @@ def main(args):
                 stable_count[results == last_results] += 1
                 stable_count[results != last_results] = 0
                 mask = stable_count >= max_stable_count if cnt > 0 else np.ones(60)
-                results_stable = results * mask + last_results_stable * (1 - mask)
+                results_stable = results * mask + last_results_stable * (1 - mask) # stabilized result. we use this as the final result
                 if not np.array_equal(results_stable, last_results_stable):
                     change = (results_stable - last_results_stable)[results_stable != last_results_stable]
                     changed_label = [label for result, last_result, label in zip(results_stable, last_results_stable, classes) if result != last_result]
