@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 import sys
 from pathlib import Path
+import csv
 import torch.multiprocessing as mp
 sys.path.append(str(Path(__file__).absolute().parent.parent))
 sys.path.append(str(Path(__file__).absolute().parent.parent / 'yolov7'))
@@ -63,11 +64,18 @@ def main(args):
         cam_vid_paths = [str(path) for path in Path(source).iterdir()]
         datasets = [LoadImages(vid, img_size=imgsz, stride=stride) for vid in cam_vid_paths]
 
+        # write csv result file
+
+
         # run detection
         vid_writer = None
         start = time.time()
         inputs = []
         results = np.zeros(60)
+        last_results = np.zeros(60)
+        f = open('result_'+str(int(start))+'.csv', 'w')
+        wr = csv.writer(f)
+        wr.writerow(['time']+classes)
         for cnt, datas in enumerate(zip(datasets[0], datasets[1], datasets[2], datasets[3], datasets[4])):
             print()
 
@@ -111,11 +119,14 @@ def main(args):
                     # averageing result
                     results += result / num_frames_to_avg
                 results = results.round().astype(np.int32)
-
                 print(f'results calculating time: {time.time() - tmp}')
                 inputs = None
 
             # saving result as a video
+            if(not np.array_equal(last_results, results)):
+                diff_results = results-last_results
+                wr.writerow([cnt]+diff_results.tolist())
+            last_results = results
             tmp = time.time()
             _, _, img, vid_cap = datas[0]
             if not isinstance(vid_writer, cv2.VideoWriter):
@@ -137,6 +148,7 @@ def main(args):
             print(f'video saving time: {time.time() - tmp}')
             print(time.time()-start)
         vid_writer.release()
+        f.close()
 
 
 
