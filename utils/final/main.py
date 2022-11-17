@@ -1,4 +1,6 @@
 import argparse
+import os.path
+
 import torch
 import time
 import numpy as np
@@ -6,9 +8,8 @@ import cv2
 import sys
 from pathlib import Path
 import csv
-import torch.multiprocessing as mp
-sys.path.append(str(Path(__file__).absolute().parent.parent))
-sys.path.append(str(Path(__file__).absolute().parent.parent / 'yolov7'))
+sys.path.append(str(Path(__file__).absolute().parent.parent.parent))
+sys.path.append(str(Path(__file__).absolute().parent.parent.parent / 'yolov7'))
 
 from models.experimental import attempt_load
 from utils.general import check_imshow, check_img_size, non_max_suppression
@@ -37,18 +38,18 @@ classes = ['aunt_jemima_original_syrup', 'band_aid_clear_strips', 'bumblebee_alb
 # style of text when writing onto image
 font = cv2.FONT_HERSHEY_SIMPLEX
 fontScale = 0.3
-fontColor = (255,255,255)
+fontColor = (255, 255, 255)
 thickness = 1
 lineType = 2
 
 
 def main(args):
-    source, weights, device_name, imgsz = args.source, args.weights, f'cuda:{args.gpu_id}', args.img_size
-    save_path, num_frames_to_avg = args.save_path, args.num_frames_to_avg
+    source, weights, imgsz = args.source, args.weights, args.img_size
+    vid_path, csv_path = os.path.join(args.out_path, 'result.mp4'), os.path.join(args.out_path, f'result_{int(time.time())}.csv')
+    num_frames_to_avg, max_stable_count = args.num_frames_to_avg, args.max_stable_count
 
     # only implementing with device GPU
-    assert device_name.split(':')[0] == 'cuda', f'{device_name} not implemented'
-    device = torch.device(device_name)
+    device = torch.device('cuda')
     webcam = source == '0'
 
     # load model
@@ -64,18 +65,20 @@ def main(args):
         cam_vid_paths = [str(path) for path in Path(source).iterdir()]
         datasets = [LoadImages(vid, img_size=imgsz, stride=stride) for vid in cam_vid_paths]
 
-        # write csv result file
-
+        # initialize csv file writer
+        f = open(csv_path, 'w')
+        wr = csv.writer(f)
+        wr.writerow(['time(s)'] + classes)
 
         # run detection
         vid_writer = None
+        inputs = None
         start = time.time()
-        inputs = []
-        results = np.zeros(60)
-        last_results = np.zeros(60)
-        f = open('result_'+str(int(start))+'.csv', 'w')
-        wr = csv.writer(f)
-        wr.writerow(['time']+classes)
+        last_results = np.zeros(60) # save previous result
+        results_stable = np.zeros(60) # stabilized result. we use this as the final result
+        last_results_stable = np.zeros(60) # save previous stabilized result
+        stable_count = np.zeros(60) # counting how long the result is stable
+        change_log = []
         for cnt, datas in enumerate(zip(datasets[0], datasets[1], datasets[2], datasets[3], datasets[4])):
             print()
 
@@ -88,7 +91,8 @@ def main(args):
                 inputs.extend(images)
             print(f'image preparing time: {time.time() - tmp}')
 
-            if cnt % num_frames_to_avg == num_frames_to_avg - 1:
+            if cnt % num_frames_to_avg == 0:
+
                 # get prediction from model
                 tmp = time.time()
                 with torch.no_grad():
@@ -100,11 +104,12 @@ def main(args):
                     preds = model(inputs)[0] # tuple of predictions in all 5 cameras
                     print(f'model prediction time: {time.time() - tmp}')
                     preds = non_max_suppression(preds, args.conf_thres, args.iou_thres)
-                print(f'model total prediction time: {time.time() - tmp}')
+                inputs = None
+                print(f'total prediction time: {time.time() - tmp}')
 
                 # calculating final result
-                results = np.zeros(60)
                 tmp = time.time()
+                results = np.zeros(60)
                 for i in range(num_frames_to_avg):
                     result = np.zeros(60)
 
@@ -116,28 +121,39 @@ def main(args):
                             result_tmp[int(det[-1])] += 1
                         result = np.maximum(result, result_tmp)
 
-                    # averageing result
-                    results += result / num_frames_to_avg
+                    # averaging result
+                    results += result / num_frames_to_avg if cnt > 0 else result
+
                 results = results.round().astype(np.int32)
                 print(f'results calculating time: {time.time() - tmp}')
-                inputs = None
+
+                # saving changes as csv file
+                tmp = time.time()
+                stable_count[results == last_results] += 1
+                stable_count[results != last_results] = 0
+                mask = stable_count >= max_stable_count if cnt > 0 else np.ones(60)
+                results_stable = results * mask + last_results_stable * (1 - mask)
+                if not np.array_equal(results_stable, last_results_stable):
+                    change = (results_stable - last_results_stable)[results_stable != last_results_stable]
+                    changed_label = [label for result, last_result, label in zip(results_stable, last_results_stable, classes) if result != last_result]
+                    change_log = [f'{label} {int(diff)}' for label, diff in zip(changed_label, change)]
+                    wr.writerow([f'{cnt/30:.2f}'] + change_log)
+                last_results_stable = results_stable
+                last_results = results
+                print(f'csv saving time: {time.time() - tmp}')
 
             # saving result as a video
-            if(not np.array_equal(last_results, results)):
-                diff_results = results-last_results
-                wr.writerow([cnt]+diff_results.tolist())
-            last_results = results
             tmp = time.time()
             _, _, img, vid_cap = datas[0]
             if not isinstance(vid_writer, cv2.VideoWriter):
                 fps = vid_cap.get(cv2.CAP_PROP_FPS)
                 w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                 h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+                vid_writer = cv2.VideoWriter(vid_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
 
-            for i, num in enumerate(results):
-                bottomLeftCornerOfText = (5 + (i % 10) * 50, 10 * (i // 10 + 1))
-                cv2.putText(img, f'{classes[i][0:4]}:{int(num):02d}',
+            for i, log in enumerate(change_log):
+                bottomLeftCornerOfText = (5, 10 * (i + 1))
+                cv2.putText(img, log,
                             bottomLeftCornerOfText,
                             font,
                             fontScale,
@@ -147,21 +163,22 @@ def main(args):
             vid_writer.write(img)
             print(f'video saving time: {time.time() - tmp}')
             print(time.time()-start)
+
         vid_writer.release()
         f.close()
 
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', type=str, default='/home/aistore17/results/yolov7_200ep_best.pt', help='yolo model to use')
+    parser.add_argument('--weights', type=str, default='../../yolov7/runs/train/exp56/weights/best.pt', help='yolo model to use')
     parser.add_argument('--gpu-id', type=str, default='0', help='device to run')
     parser.add_argument('--conf-thres', type=float, default=0.25)
     parser.add_argument('--iou-thres', type=float, default=0.45)
     parser.add_argument('--source', type=str, default='/home/aistore17/Datasets/4.TestVideosSample', help='0 for webcams, else directory path to videos')
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
-    parser.add_argument('--save-path', type=str, default='../results/result.mp4', help='path to save resulting video')
-    parser.add_argument('-nf', '--num-frames-to-avg', type=int, default=5, help='number of frames to average')
+    parser.add_argument('--out-path', type=str, default='../../results', help='path to save resulting video')
+    parser.add_argument('-nfa', '--num-frames-to-avg', type=int, default=5, help='number of frames to average')
+    parser.add_argument('-msc', '--max-stable-count', type=int, default=5, help='maximum counts to stay stable. nfa * msc number of frames should stay stable')
     args = parser.parse_args()
 
     main(args)
