@@ -415,7 +415,7 @@ class LVISEval:
         """
 
         if not self.eval_imgs:
-            print("Warning: Please run evaluate first.")
+            print("Warning: Please detectron2_run evaluate first.")
 
         if self.params.use_cats:
             cat_ids = self.params.cat_ids
@@ -550,7 +550,7 @@ class LVISEval:
     def summarize(self):
         """Compute and display summary metrics for evaluation results."""
         if not self.eval:
-            raise RuntimeError("Please run accumulate() first.")
+            raise RuntimeError("Please detectron2_run accumulate() first.")
 
         max_dets = self.params.max_dets
 
@@ -624,7 +624,7 @@ class LVISEval:
 
     def get_results(self):
         if not self.results:
-            print("Warning: results is empty. Call run().")
+            print("Warning: results is empty. Call detectron2_run().")
         return self.results
 
 

@@ -70,7 +70,7 @@ def main(args):
         wr = csv.writer(f)
         wr.writerow(['time(s)'] + classes)
 
-        # run detection
+        # detectron2_run detection
         vid_writer = None
         inputs = None
         start = time.time()
@@ -170,7 +170,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, default='../../yolov7/runs/train/exp56/weights/best.pt', help='yolo model to use')
-    parser.add_argument('--gpu-id', type=str, default='0', help='device to run')
+    parser.add_argument('--gpu-id', type=str, default='0', help='device to detectron2_run')
     parser.add_argument('--conf-thres', type=float, default=0.25)
     parser.add_argument('--iou-thres', type=float, default=0.45)
     parser.add_argument('--source', type=str, default='/home/aistore17/Datasets/4.TestVideosSample', help='0 for webcams, else directory path to videos')

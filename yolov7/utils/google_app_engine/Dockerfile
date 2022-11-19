@@ -12,7 +12,7 @@ ENV PATH /env/bin:$PATH
 
 RUN apt-get update && apt-get install -y python-opencv
 
-# Copy the application's requirements.txt and run pip to install all
+# Copy the application's requirements.txt and detectron2_run pip to install all
 # dependencies into the virtualenv.
 ADD requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt

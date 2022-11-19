@@ -3,7 +3,7 @@ import logging
 import sys
 from copy import deepcopy
 
-sys.path.append('./')  # to run '$ python *.py' files in subdirectories
+sys.path.append('./')  # to detectron2_run '$ python *.py' files in subdirectories
 logger = logging.getLogger(__name__)
 import torch
 from models.common import *
@@ -537,7 +537,7 @@ class Model(nn.Module):
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
             self.stride = m.stride
-            self._initialize_biases()  # only run once
+            self._initialize_biases()  # only detectron2_run once
             # print('Strides: %s' % m.stride.tolist())
         if isinstance(m, IDetect):
             s = 256  # 2x min stride
@@ -545,7 +545,7 @@ class Model(nn.Module):
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
             self.stride = m.stride
-            self._initialize_biases()  # only run once
+            self._initialize_biases()  # only detectron2_run once
             # print('Strides: %s' % m.stride.tolist())
         if isinstance(m, IAuxDetect):
             s = 256  # 2x min stride
@@ -554,7 +554,7 @@ class Model(nn.Module):
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
             self.stride = m.stride
-            self._initialize_aux_biases()  # only run once
+            self._initialize_aux_biases()  # only detectron2_run once
             # print('Strides: %s' % m.stride.tolist())
         if isinstance(m, IBin):
             s = 256  # 2x min stride
@@ -562,7 +562,7 @@ class Model(nn.Module):
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
             self.stride = m.stride
-            self._initialize_biases_bin()  # only run once
+            self._initialize_biases_bin()  # only detectron2_run once
             # print('Strides: %s' % m.stride.tolist())
         if isinstance(m, IKeypoint):
             s = 256  # 2x min stride
@@ -570,7 +570,7 @@ class Model(nn.Module):
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
             self.stride = m.stride
-            self._initialize_biases_kpt()  # only run once
+            self._initialize_biases_kpt()  # only detectron2_run once
             # print('Strides: %s' % m.stride.tolist())
 
         # Init weights, biases
@@ -622,7 +622,7 @@ class Model(nn.Module):
                 dt.append((time_synchronized() - t) * 100)
                 print('%10.1f%10.0f%10.1fms %-40s' % (o, m.np, dt[-1], m.type))
 
-            x = m(x)  # run
+            x = m(x)  # detectron2_run
             
             y.append(x if m.i in self.save else None)  # save output
 

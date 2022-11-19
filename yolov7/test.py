@@ -51,7 +51,7 @@ def test(data,
         device = select_device(opt.device, batch_size=batch_size)
 
         # Directories
-        save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
+        save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment detectron2_run
         (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
         # Load model
@@ -85,7 +85,7 @@ def test(data,
     # Dataloader
     if not training:
         if device.type != 'cpu':
-            model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
+            model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # detectron2_run once
         task = opt.task if opt.task in ('train', 'val', 'test') else 'val'  # path to train/val/test images
         dataloader = create_dataloader(data[task], imgsz, batch_size, gs, opt, pad=0.5, rect=True,
                                        prefix=colorstr(f'{task}: '))[0]
@@ -315,7 +315,7 @@ if __name__ == '__main__':
     print(opt)
     #check_requirements()
 
-    if opt.task in ('train', 'val', 'test'):  # run normally
+    if opt.task in ('train', 'val', 'test'):  # detectron2_run normally
         test(opt.data,
              opt.weights,
              opt.batch_size,
@@ -337,7 +337,7 @@ if __name__ == '__main__':
         for w in opt.weights:
             test(opt.data, w, opt.batch_size, opt.img_size, 0.25, 0.45, save_json=False, plots=False, v5_metric=opt.v5_metric)
 
-    elif opt.task == 'study':  # run over a range of settings and save/plot
+    elif opt.task == 'study':  # detectron2_run over a range of settings and save/plot
         # python test.py --task study --data coco.yaml --iou 0.65 --weights yolov7.pt
         x = list(range(256, 1536 + 128, 128))  # x axis (image sizes)
         for w in opt.weights:

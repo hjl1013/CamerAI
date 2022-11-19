@@ -8,7 +8,7 @@ from pathlib import Path
 import torch
 import yaml
 
-sys.path.append('./')  # to run '$ python *.py' files in subdirectories
+sys.path.append('./')  # to detectron2_run '$ python *.py' files in subdirectories
 
 port = 0  # --master_port
 path = Path('').resolve()
@@ -32,6 +32,6 @@ for last in path.rglob('*/**/last.pt'):
     else:  # single-GPU
         cmd = f'python train.py --resume {last}'
 
-    cmd += ' > /dev/null 2>&1 &'  # redirect output to dev/null and run in daemon thread
+    cmd += ' > /dev/null 2>&1 &'  # redirect output to dev/null and detectron2_run in daemon thread
     print(cmd)
     os.system(cmd)

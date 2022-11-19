@@ -27,7 +27,7 @@ class RegisterNMS(object):
     def infer(self):
         """
         Sanitize the graph by cleaning any unconnected nodes, do a topological resort,
-        and fold constant inputs values. When possible, run shape inference on the
+        and fold constant inputs values. When possible, detectron2_run shape inference on the
         ONNX graph to determine tensor shapes.
         """
         for _ in range(3):

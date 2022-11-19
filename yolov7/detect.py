@@ -22,7 +22,7 @@ def detect(save_img=False):
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
 
     # Directories
-    save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
+    save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment detectron2_run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
     # Initialize
@@ -62,7 +62,7 @@ def detect(save_img=False):
 
     # Run inference
     if device.type != 'cpu':
-        model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
+        model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # detectron2_run once
     old_img_w = old_img_h = imgsz
     old_img_b = 1
 

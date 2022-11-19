@@ -18,7 +18,7 @@ def setup_environment():
 
 
 def setup_custom_environment(custom_module_path):
-    """Load custom environment setup from a Python source file and run the setup
+    """Load custom environment setup from a Python source file and detectron2_run the setup
     function.
     """
     module = import_file("maskrcnn_benchmark.utils.env.custom_module", custom_module_path)

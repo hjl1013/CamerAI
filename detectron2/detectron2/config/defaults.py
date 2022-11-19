@@ -589,7 +589,7 @@ _C.SOLVER.CLIP_GRADIENTS.NORM_TYPE = 2.0
 
 # Enable automatic mixed precision for training
 # Note that this does not change model's inference behavior.
-# To use AMP in inference, run inference under autocast()
+# To use AMP in inference, detectron2_run inference under autocast()
 _C.SOLVER.AMP = CN({"ENABLED": False})
 
 # ---------------------------------------------------------------------------- #
