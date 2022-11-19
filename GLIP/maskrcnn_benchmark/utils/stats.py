@@ -194,7 +194,7 @@ def start_flops_count(self, **kwargs):
     on a desired net object.
 
     Activates the computation of mean flops consumption per image.
-    Call it before you run the network.
+    Call it before you detectron2_run the network.
 
     """
     add_batch_counter_hook_function(self)

@@ -3,7 +3,7 @@ import sys
 import time
 import warnings
 
-sys.path.append('./')  # to run '$ python *.py' files in subdirectories
+sys.path.append('./')  # to detectron2_run '$ python *.py' files in subdirectories
 
 import torch
 import torch.nn as nn
@@ -65,7 +65,7 @@ if __name__ == '__main__':
         # elif isinstance(m, models.yolo.Detect):
         #     m.forward = m.forward_export  # assign forward (optional)
     model.model[-1].export = not opt.grid  # set Detect() layer grid export
-    y = model(img)  # dry run
+    y = model(img)  # dry detectron2_run
     if opt.include_nms:
         model.model[-1].include_nms = True
         y = None

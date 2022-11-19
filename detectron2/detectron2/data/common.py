@@ -242,7 +242,7 @@ class ToIterableDataset(data.IterableDataset):
         else:
             # With map-style dataset, `DataLoader(dataset, sampler)` runs the
             # sampler in main process only. But `DataLoader(ToIterableDataset(dataset, sampler))`
-            # will run sampler in every of the N worker. So we should only keep 1/N of the ids on
+            # will detectron2_run sampler in every of the N worker. So we should only keep 1/N of the ids on
             # each worker. The assumption is that sampler is cheap to iterate so it's fine to
             # discard ids in workers.
             sampler = _shard_iterator_dataloader_worker(self.sampler)

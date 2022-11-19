@@ -102,7 +102,7 @@ code:
   local_dir: $CONFIG_DIR/../
 
 #############################################
-# run experiments for pre-training
+# detectron2_run experiments for pre-training
 #############################################
 
 

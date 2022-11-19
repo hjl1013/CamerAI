@@ -192,7 +192,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--config-file", default="", metavar="FILE", help="path to config file")
     parser.add_argument("--sample-image", default=None, type=str, help="sample image for input")
-    parser.add_argument("--run-eval", action="store_true")
+    parser.add_argument("--detectron2_run-eval", action="store_true")
     parser.add_argument("--output", help="output directory for the converted model")
     parser.add_argument(
         "opts",
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     logger = setup_logger()
     logger.info("Command line arguments: " + str(args))
     PathManager.mkdirs(args.output)
-    # Disable re-specialization on new shapes. Otherwise --run-eval will be slow
+    # Disable re-specialization on new shapes. Otherwise --detectron2_run-eval will be slow
     torch._C._jit_set_bailout_depth(1)
 
     cfg = setup_cfg(args)
@@ -224,7 +224,7 @@ if __name__ == "__main__":
         sample_inputs = get_sample_inputs(args)
         exported_model = export_tracing(torch_model, sample_inputs)
 
-    # run evaluation with the converted model
+    # detectron2_run evaluation with the converted model
     if args.run_eval:
         assert exported_model is not None, (
             "Python inference is not yet implemented for "

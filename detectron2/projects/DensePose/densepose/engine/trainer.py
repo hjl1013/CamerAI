@@ -240,7 +240,7 @@ class Trainer(DefaultTrainer):
     @classmethod
     def test_with_TTA(cls, cfg: CfgNode, model):
         logger = logging.getLogger("detectron2.trainer")
-        # In the end of training, run an evaluation with TTA
+        # In the end of training, detectron2_run an evaluation with TTA
         # Only support some R-CNN models.
         logger.info("Running inference with test-time augmentation ...")
         transform_data = load_from_cfg(cfg)
