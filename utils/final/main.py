@@ -45,8 +45,11 @@ lineType = 2
 
 def main(args):
     source, weights, imgsz = args.source, args.weights, args.img_size
-    vid_path, csv_path = os.path.join(args.out_path, 'result.mp4'), os.path.join(args.out_path, f'result_{int(time.time())}.csv')
     num_frames_to_avg, max_stable_count = args.num_frames_to_avg, args.max_stable_count
+    conf_thres, iou_thres = args.conf_thres, args.iou_thres
+    out_path = os.path.join(args.out_path, f"{weights.split('.pt')[0].split('/')[-1]}_{conf_thres}_{iou_thres}_{num_frames_to_avg}_{max_stable_count}")
+    vid_path, csv_path = os.path.join(out_path, 'result.mp4'), os.path.join(out_path, f'result.csv')
+    os.makedirs(out_path, exist_ok=True)
 
     # only implementing with device GPU
     device = torch.device('cuda')
@@ -102,7 +105,7 @@ def main(args):
 
                     preds = model(inputs)[0] # tuple of predictions in all 5 cameras
                     print(f'model prediction time: {time.time() - tmp}')
-                    preds = non_max_suppression(preds, args.conf_thres, args.iou_thres)
+                    preds = non_max_suppression(preds, conf_thres, iou_thres)
                 inputs = None
                 print(f'total prediction time: {time.time() - tmp}')
 
@@ -169,7 +172,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', type=str, default='../../yolov7/runs/train/exp56/weights/best.pt', help='yolo model to use')
+    parser.add_argument('--weights', type=str, default='/home/aistore17/results/yolov7_400ep.pt', help='yolo model to use')
     parser.add_argument('--gpu-id', type=str, default='0', help='device to detectron2_run')
     parser.add_argument('--conf-thres', type=float, default=0.25)
     parser.add_argument('--iou-thres', type=float, default=0.45)
