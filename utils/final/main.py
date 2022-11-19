@@ -93,7 +93,7 @@ def main(args):
                 inputs.extend(images)
             print(f'image preparing time: {time.time() - tmp}')
 
-            if cnt % num_frames_to_avg == 0:
+            if cnt % num_frames_to_avg == num_frames_to_avg - 1:
 
                 # get prediction from model
                 tmp = time.time()
@@ -124,7 +124,7 @@ def main(args):
                         result = np.maximum(result, result_tmp)
 
                     # averaging result
-                    results += result / num_frames_to_avg if cnt > 0 else result
+                    results += result / num_frames_to_avg # if cnt > 0 else result
 
                 results = results.round().astype(np.int32)
                 print(f'results calculating time: {time.time() - tmp}')
@@ -133,7 +133,7 @@ def main(args):
                 tmp = time.time()
                 stable_count[results == last_results] += 1
                 stable_count[results != last_results] = 0
-                mask = stable_count >= max_stable_count if cnt > 0 else np.ones(60)
+                mask = stable_count >= max_stable_count if cnt >= num_frames_to_avg else np.ones(60)
                 results_stable = results * mask + last_results_stable * (1 - mask) # stabilized result. we use this as the final result
                 if not np.array_equal(results_stable, last_results_stable):
                     change = (results_stable - last_results_stable)[results_stable != last_results_stable]
@@ -173,7 +173,6 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, default='/home/aistore17/results/yolov7_400ep.pt', help='yolo model to use')
-    parser.add_argument('--gpu-id', type=str, default='0', help='device to detectron2_run')
     parser.add_argument('--conf-thres', type=float, default=0.25)
     parser.add_argument('--iou-thres', type=float, default=0.45)
     parser.add_argument('--source', type=str, default='/home/aistore17/Datasets/4.TestVideosSample', help='0 for webcams, else directory path to videos')
