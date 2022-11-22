@@ -1,9 +1,9 @@
 # CamerAI
 ## How to run our model
 
-First, `cd` into `utils/final`. Then run
+First, `cd` into `/home/aistore17/CamerAI_hjl/utils/final`. Then run
 
-    python3 main.py --weights path/to/weight -cfc 0.93 -cfs 0.6 -nfa 10 -msc 3 --out-path path/to/output
+    python3 main.py --weights /home/aistore17/results/yolov7_400ep.pt -cfc 0.93 -cfs 0.8 -nfa 10 -msc 3 --out-path ../../results
 
 Running this will save a video with change log written on top of center camera video
 and a csv file of change log with its corresponding time. Default parameters output the
