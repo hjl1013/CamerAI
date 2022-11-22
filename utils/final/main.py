@@ -126,7 +126,8 @@ def main(args):
                     result = np.zeros(60)
                     pred = center_preds[i].cpu()
                     for det in pred:
-                        result[int(det[-1])] += 1
+                        if int(det[-1]) != 8: # fucking hunts sauce
+                            result[int(det[-1])] += 1
 
                     # calculating union of 4 side cameras in one frame
                     for pred in side_preds[4 * i: 4 * (i+1)]:
@@ -205,7 +206,7 @@ if __name__ == '__main__':
     parser.add_argument('--save-vid', type=bool, default=True, help='whether to save video as output')
     parser.add_argument('--save-csv', type=bool, default=True, help='whether to save csv file as output')
     parser.add_argument('-cfc', '--conf-thres-center', type=float, default=0.93)
-    parser.add_argument('-cfs', '--conf-thres-side', type=float, default=0.6)
+    parser.add_argument('-cfs', '--conf-thres-side', type=float, default=0.8)
     parser.add_argument('-nfa', '--num-frames-to-avg', type=int, default=5, help='number of frames to average')
     parser.add_argument('-msc', '--max-stable-count', type=int, default=6, help='maximum counts to stay stable. nfa * msc number of frames should stay stable')
     args = parser.parse_args()
