@@ -1,13 +1,15 @@
 # CamerAI
 ## How to run our model
 
-First, `cd` into `/home/aistore17/CamerAI_hjl/utils/final`. Then run
+First, `cd` into `/home/aistore17/Final_submission/utils/final`. Then run
 
     python3 main.py --weights /home/aistore17/results/yolov7_400ep.pt -cfc 0.93 -cfs 0.8 -nfa 10 -msc 3 --out-path ../../results
 
 Running this will save a video with change log written on top of center camera video
 and a csv file of change log with its corresponding time. Default parameters output the
 best results.
+
+The output file path is `/home/aistore17/Final_submission/results`
 
 There are some more arguments you can use to run `main.py`
 
