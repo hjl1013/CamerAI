@@ -3,7 +3,8 @@
 
 First, `cd` into `/home/aistore17/Final_submission/utils/final`. Then run
 
-    python3 main.py --weights /home/aistore17/results/yolov7_400ep.pt -cfc 0.93 -cfs 0.8 -nfa 10 -msc 3 --out-path ../../results
+    python3 main.py --weights /home/aistore17/results/yolov7_400ep.pt -cfc 0.93 -cfs 0.8 -nfa 10 -msc 3 \
+    --out-path ../../results --source /home/aistore17/Datasets/4.TestVideosSample-2/1
 
 Running this will save a video with change log written on top of center camera video
 and a csv file of change log with its corresponding time. Default parameters output the
@@ -15,7 +16,7 @@ There are some more arguments you can use to run `main.py`
 
 * --weights : type=str, default = '/home/aistore17/results/yolov7_400ep.pt', yolo model to use
 * --iou-thres : type=float, default=0.45
-* --source : type=str, default='/home/aistore17/Datasets/4.TestVideosSample/1', help='0 for webcams, else directory path to videos'
+* --source : type=str, default='/home/aistore17/Datasets/4.TestVideosSample-2/1', help='0 for webcams, else directory path to videos'
 * --img-size : type=int, default=640, help='inference size (pixels)'
 * --output-path : type=str, default='../../results', help='path to save results'
 * --save-vid : type=bool, default=True, help='whether to save video as output'
