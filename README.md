@@ -11,7 +11,7 @@ and a csv file of change log with its corresponding time. Default parameters out
 best results.
 
 Change --source argument to `/home/aistore17/Datasets/4.TestVideosSample-2/{2~6}` to run video sample 2~6.
-This folder has to have only 5 camera videos in it with the format of `#_center.mp4`, `#_left_back.mp4`,
+Source folder has to have ONLY 5 camera videos in it with the format of `#_center.mp4`, `#_left_back.mp4`,
 `#_left_front.mp4`, `#_right_back.mp4`, `#_right_front.mp4`. # indicates the number of video.
 
 The output file path is `/home/aistore17/Final_submission/results`
